@@ -42,7 +42,7 @@ export default function ProductList({ products, onDelete }: ProductListProps) {
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {products.map((product) => (
-            <tr key={product.id}>
+            <tr key={`${product.id}-${product.sku}`}>
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="flex items-center">
                   {product.imageUrl && (

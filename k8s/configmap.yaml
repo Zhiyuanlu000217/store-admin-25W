@@ -3,5 +3,5 @@ kind: ConfigMap
 metadata:
   name: store-admin-config
 data:
-  product_api_url: "http://localhost:3060"
-  ai_service_url: "http://localhost:3080" 
+  product_api_url: "http://product-service:3060"
+  ai_service_url: "http://ai-service:3080" 

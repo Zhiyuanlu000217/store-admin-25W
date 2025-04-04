@@ -1,75 +1,110 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Product } from '@/types/product';
+import { 
+  Typography, 
+  Box, 
+  Card, 
+  CardContent, 
+  Paper,
+  Button
+} from '@mui/material';
 import { getProducts } from '@/services/api';
-import ProductList from '@/components/ProductList';
-import ProductForm from '@/components/ProductForm';
+import DashboardLayout from '@/components/layout/DashboardLayout';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [productCount, setProductCount] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
-  const fetchProducts = async () => {
-    try {
-      const data = await getProducts();
-      setProducts(data);
-      setError('');
-    } catch (error) {
-      setError('Failed to fetch products');
-      console.error('Error fetching products:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const router = useRouter();
 
   useEffect(() => {
-    fetchProducts();
+    async function fetchProductCount() {
+      try {
+        const data = await getProducts();
+        setProductCount(data.length);
+        setError('');
+      } catch (error) {
+        setError('Failed to fetch products');
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchProductCount();
   }, []);
 
+  const dashboardCards = [
+    {
+      title: 'Total Products',
+      icon: <InventoryIcon sx={{ fontSize: 40, color: 'primary.main' }} />,
+      value: loading ? '...' : productCount.toString(),
+      action: () => router.push('/products'),
+      actionText: 'View All Products'
+    },
+    {
+      title: 'Add New Product',
+      icon: <AddCircleIcon sx={{ fontSize: 40, color: 'secondary.main' }} />,
+      value: 'Create',
+      action: () => router.push('/products/new'),
+      actionText: 'Add Product'
+    },
+  ];
+
   return (
-    <main className="min-h-screen bg-gray-100 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">
-            Store Admin Dashboard
-          </h1>
-          <p className="mt-3 text-xl text-gray-500 sm:mt-4">
-            Manage your products with ease
-          </p>
-        </div>
+    <DashboardLayout>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Dashboard
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Welcome to your store admin dashboard
+        </Typography>
+      </Box>
 
-        <div className="mt-12">
-          <div className="bg-white shadow sm:rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-              <h2 className="text-lg font-medium text-gray-900">Add New Product</h2>
-              <div className="mt-5">
-                <ProductForm onSuccess={fetchProducts} />
-              </div>
-            </div>
-          </div>
-        </div>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+        {dashboardCards.map((card, index) => (
+          <Box 
+            key={index} 
+            sx={{ 
+              width: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)' },
+              flexGrow: 0
+            }}
+          >
+            <Card elevation={3}>
+              <CardContent sx={{ textAlign: 'center', py: 3 }}>
+                <Box sx={{ mb: 2 }}>
+                  {card.icon}
+                </Box>
+                <Typography variant="h6" component="div" gutterBottom>
+                  {card.title}
+                </Typography>
+                <Typography variant="h4" component="div" gutterBottom color="text.primary">
+                  {card.value}
+                </Typography>
+                <Button 
+                  variant="contained" 
+                  color="primary"
+                  onClick={card.action}
+                  sx={{ mt: 2 }}
+                >
+                  {card.actionText}
+                </Button>
+              </CardContent>
+            </Card>
+          </Box>
+        ))}
+      </Box>
 
-        <div className="mt-8">
-          <div className="bg-white shadow sm:rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-              <h2 className="text-lg font-medium text-gray-900">Products</h2>
-              {loading ? (
-                <div className="mt-4 text-center text-gray-500">Loading...</div>
-              ) : error ? (
-                <div className="mt-4 text-center text-red-500">{error}</div>
-              ) : products.length === 0 ? (
-                <div className="mt-4 text-center text-gray-500">No products found</div>
-              ) : (
-                <div className="mt-4">
-                  <ProductList products={products} onDelete={fetchProducts} />
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </main>
+      {error && (
+        <Paper sx={{ p: 2, mt: 3, backgroundColor: 'error.light' }}>
+          <Typography color="error">{error}</Typography>
+        </Paper>
+      )}
+    </DashboardLayout>
   );
 }

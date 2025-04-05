@@ -1,18 +1,16 @@
 import { Order, OrderUpdateData } from '@/types/order';
 
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'http://makeline-service:3070/api/orders'
-  : 'http://localhost:3070/api/orders';
+const MAKELINE_API_URL = process.env.NEXT_PUBLIC_MAKELINE_API_URL || 'http://localhost:3070';
 
 export const orderService = {
   getAllOrders: async (): Promise<Order[]> => {
-    const response = await fetch(API_BASE_URL);
+    const response = await fetch(`${MAKELINE_API_URL}/api/orders`);
     if (!response.ok) throw new Error('Failed to fetch orders');
     return response.json();
   },
 
   updateOrder: async (orderId: string, data: OrderUpdateData): Promise<Order> => {
-    const response = await fetch(`${API_BASE_URL}/${orderId}`, {
+    const response = await fetch(`${MAKELINE_API_URL}/api/orders/${orderId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -22,7 +20,7 @@ export const orderService = {
   },
 
   deleteOrder: async (orderId: string): Promise<void> => {
-    const response = await fetch(`${API_BASE_URL}/${orderId}`, {
+    const response = await fetch(`${MAKELINE_API_URL}/api/orders/${orderId}`, {
       method: 'DELETE',
     });
     if (!response.ok) throw new Error('Failed to delete order');

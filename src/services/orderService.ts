@@ -1,6 +1,6 @@
 import { Order, OrderUpdateData } from '@/types/order';
 
-const MAKELINE_API_URL = process.env.NEXT_PUBLIC_MAKELINE_API_URL || 'http://localhost:3070';
+const MAKELINE_API_URL = process.env.NEXT_PUBLIC_MAKELINE_API_URL || 'http://makeline-service:3070';
 
 export const orderService = {
   getAllOrders: async (): Promise<Order[]> => {

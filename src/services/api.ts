@@ -2,9 +2,9 @@ import { Product, ProductFormData } from '@/types/product';
 import { Order, OrderUpdateData } from '@/types/order';
 
 // Use environment variables with fallbacks for development
-const PRODUCT_API_URL = process.env.NEXT_PUBLIC_PRODUCT_API_URL || 'http://localhost:3060';
-const AI_SERVICE_URL = process.env.NEXT_PUBLIC_AI_SERVICE_URL || 'http://localhost:3080';
-const MAKELINE_API_URL = process.env.NEXT_PUBLIC_MAKELINE_API_URL || 'http://localhost:3070';
+const PRODUCT_API_URL = process.env.NEXT_PUBLIC_PRODUCT_API_URL || 'http://product-service:3060';
+const AI_SERVICE_URL = process.env.NEXT_PUBLIC_AI_SERVICE_URL || 'http://ai-service:3080';
+const MAKELINE_API_URL = process.env.NEXT_PUBLIC_MAKELINE_API_URL || 'http://makeline-service:3070';
 
 export async function getProducts(): Promise<Product[]> {
   const response = await fetch(`${PRODUCT_API_URL}/api/products`);

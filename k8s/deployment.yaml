@@ -30,6 +30,11 @@ spec:
             configMapKeyRef:
               name: store-admin-config
               key: ai_service_url
+        - name: NEXT_PUBLIC_MAKELINE_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: store-admin-config
+              key: makeline_api_url
         resources:
           requests:
             cpu: "100m"

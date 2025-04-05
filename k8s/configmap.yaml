@@ -4,4 +4,5 @@ metadata:
   name: store-admin-config
 data:
   product_api_url: "http://product-service:3060"
-  ai_service_url: "http://ai-service:3080" 
+  ai_service_url: "http://ai-service:3080"
+  makeline_api_url: "http://makeline-service:3070" 

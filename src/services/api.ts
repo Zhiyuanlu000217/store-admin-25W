@@ -1,8 +1,10 @@
 import { Product, ProductFormData } from '@/types/product';
+import { Order, OrderUpdateData } from '@/types/order';
 
 // Use environment variables with fallbacks for development
 const PRODUCT_API_URL = process.env.NEXT_PUBLIC_PRODUCT_API_URL || 'http://localhost:3060';
 const AI_SERVICE_URL = process.env.NEXT_PUBLIC_AI_SERVICE_URL || 'http://localhost:3080';
+const MAKELINE_API_URL = process.env.NEXT_PUBLIC_MAKELINE_API_URL || 'http://localhost:3070';
 
 export async function getProducts(): Promise<Product[]> {
   const response = await fetch(`${PRODUCT_API_URL}/api/products`);
@@ -62,4 +64,37 @@ export async function generateImage(keywords: string): Promise<string> {
   }
   const data = await response.json();
   return data.imageUrl;
+}
+
+// Order related functions
+export async function getOrders(): Promise<Order[]> {
+  const response = await fetch(`${MAKELINE_API_URL}/api/orders`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch orders');
+  }
+  return response.json();
+}
+
+export async function updateOrder(id: string, data: OrderUpdateData): Promise<{ message: string }> {
+  const response = await fetch(`${MAKELINE_API_URL}/api/orders/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to update order');
+  }
+  return response.json();
+}
+
+export async function deleteOrder(id: string): Promise<{ message: string }> {
+  const response = await fetch(`${MAKELINE_API_URL}/api/orders/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) {
+    throw new Error('Failed to delete order');
+  }
+  return response.json();
 } 

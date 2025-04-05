@@ -7,52 +7,92 @@ import {
   Card, 
   CardContent, 
   Paper,
-  Button
+  Button,
+  Divider
 } from '@mui/material';
-import { getProducts } from '@/services/api';
+import { getProducts, getOrders } from '@/services/api';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import ListAltIcon from '@mui/icons-material/ListAlt';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const [productCount, setProductCount] = useState<number>(0);
+  const [orderStats, setOrderStats] = useState({
+    total: 0,
+    processed: 0,
+    pending: 0
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const router = useRouter();
 
   useEffect(() => {
-    async function fetchProductCount() {
+    async function fetchData() {
       try {
-        const data = await getProducts();
-        setProductCount(data.length);
+        const [products, orders] = await Promise.all([
+          getProducts(),
+          getOrders()
+        ]);
+        
+        setProductCount(products.length);
+        
+        // Calculate order statistics
+        const stats = {
+          total: orders.length,
+          processed: orders.filter(order => order.status === 'processed').length,
+          pending: orders.filter(order => order.status === 'pending').length
+        };
+        setOrderStats(stats);
+        
         setError('');
       } catch (error) {
-        setError('Failed to fetch products');
-        console.error('Error fetching products:', error);
+        setError('Failed to fetch dashboard data');
+        console.error('Error fetching dashboard data:', error);
       } finally {
         setLoading(false);
       }
     }
 
-    fetchProductCount();
+    fetchData();
   }, []);
 
   const dashboardCards = [
     {
       title: 'Total Products',
-      icon: <InventoryIcon sx={{ fontSize: 40, color: 'primary.main' }} />,
+      icon: <InventoryIcon sx={{ fontSize: 48, color: 'primary.main' }} />,
       value: loading ? '...' : productCount.toString(),
       action: () => router.push('/products'),
-      actionText: 'View All Products'
+      actionText: 'View All Products',
+      description: 'Total number of products in your inventory'
     },
     {
       title: 'Add New Product',
-      icon: <AddCircleIcon sx={{ fontSize: 40, color: 'secondary.main' }} />,
+      icon: <AddCircleIcon sx={{ fontSize: 48, color: 'secondary.main' }} />,
       value: 'Create',
       action: () => router.push('/products/new'),
-      actionText: 'Add Product'
+      actionText: 'Add Product',
+      description: 'Add a new product to your inventory'
     },
+    {
+      title: 'Total Orders',
+      icon: <ListAltIcon sx={{ fontSize: 48, color: 'info.main' }} />,
+      value: loading ? '...' : orderStats.total.toString(),
+      action: () => router.push('/orders'),
+      actionText: 'View All Orders',
+      description: 'Total number of orders received'
+    },
+    {
+      title: 'Processed Orders',
+      icon: <LocalShippingIcon sx={{ fontSize: 48, color: 'success.main' }} />,
+      value: loading ? '...' : orderStats.processed.toString(),
+      secondaryValue: loading ? '' : `(${((orderStats.processed / orderStats.total) * 100).toFixed(1)}%)`,
+      action: () => router.push('/orders'),
+      actionText: 'View Orders',
+      description: 'Number of orders that have been processed'
+    }
   ];
 
   return (
@@ -61,42 +101,52 @@ export default function Home() {
         <Typography variant="h4" component="h1" gutterBottom>
           Dashboard
         </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Welcome to your store admin dashboard
-        </Typography>
+        <Divider sx={{ mb: 4 }} />
       </Box>
 
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
         {dashboardCards.map((card, index) => (
-          <Box 
-            key={index} 
-            sx={{ 
-              width: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)' },
-              flexGrow: 0
-            }}
-          >
-            <Card elevation={3}>
-              <CardContent sx={{ textAlign: 'center', py: 3 }}>
-                <Box sx={{ mb: 2 }}>
+          <Card key={index} sx={{ width: '100%' }}>
+            <CardContent sx={{ p: 4 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  backgroundColor: 'action.hover',
+                  borderRadius: '50%',
+                  width: 80,
+                  height: 80,
+                  flexShrink: 0
+                }}>
                   {card.icon}
                 </Box>
-                <Typography variant="h6" component="div" gutterBottom>
-                  {card.title}
-                </Typography>
-                <Typography variant="h4" component="div" gutterBottom color="text.primary">
-                  {card.value}
-                </Typography>
-                <Button 
-                  variant="contained" 
-                  color="primary"
-                  onClick={card.action}
-                  sx={{ mt: 2 }}
-                >
-                  {card.actionText}
-                </Button>
-              </CardContent>
-            </Card>
-          </Box>
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="h6" component="div" gutterBottom>
+                    {card.title}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    {card.description}
+                  </Typography>
+                  <Typography variant="h3" component="div" sx={{ my: 2 }}>
+                    {card.value}
+                    {card.secondaryValue && (
+                      <Typography variant="h6" component="span" color="text.secondary" sx={{ ml: 1 }}>
+                        {card.secondaryValue}
+                      </Typography>
+                    )}
+                  </Typography>
+                  <Button 
+                    variant="contained" 
+                    onClick={card.action}
+                    size="large"
+                  >
+                    {card.actionText}
+                  </Button>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
         ))}
       </Box>
 

@@ -20,6 +20,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import ListAltIcon from '@mui/icons-material/ListAlt';
 import { usePathname, useRouter } from 'next/navigation';
 
 const drawerWidth = 240;
@@ -41,6 +42,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
     { text: 'Products', icon: <InventoryIcon />, path: '/products' },
     { text: 'Add Product', icon: <AddCircleIcon />, path: '/products/new' },
+    { text: 'Orders', icon: <ListAltIcon />, path: '/orders' },
   ];
 
   const drawer = (
